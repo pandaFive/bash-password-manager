@@ -29,8 +29,10 @@ function provide_password () {
         fi
     done
 
-    local hitNumber=`grep -c "$service_name" ./save_location`
     local target=`grep "$service_name" ./save_location`
+    target=$(echo "$target" | awk -F':' -v service_name="$service_name" '$1 == service_name')
+    echo "てすと""$target"
+    local hitNumber=$(echo "$target" | grep -c "$service_name")
 
     # hitした登録情報の数によって処理を分ける。2つ以上hitした場合はユーザー名でさらに条件を絞る。
     if [ "$hitNumber" -eq 0 ] ; then
