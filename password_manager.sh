@@ -5,9 +5,13 @@ set -eu -o pipefail
 # Add Passwordが選ばれたときに行う処理
 function ask_passwd () {
     local servie_name
+    echo -n "サービス名を入力してください："
     while true ; do
-        read -p "サービス名を入力してください：" service_name
-        if [ "$service_name" != "" ] ; then
+        read service_name
+        local validator=$(echo "$service_name" | grep ":")
+        if [ "$validator" != "" ] ; then
+            echo -n "':'を使用することはできません。再度サービス名を入力してください："
+        elif [ "$service_name" != "" ] ; then
             break
         fi
     done
@@ -15,15 +19,28 @@ function ask_passwd () {
     echo -n "ユーザー名を入力してください："
     while true ; do
         read user_name
+        local validator=$(echo "$user_name" | grep ":")
         local registration_verification=`grep "$service_name"":""$user_name" ./save_location`
-        if [ "$registration_verification" == "" ] ; then
+        if [ "$validator" != "" ] ; then
+            echo -n "':'を使用することはできません。再度ユーザー名を入力してください："
+        elif [ "$registration_verification" == "" ] ; then
             break
         else
             echo -n "そのサービス名とユーザー名の組み合わせは既に登録されています。別ユーザー名を入力してください："
         fi
     done
 
-    read -p "パスワードを入力してください：" password
+    local password
+    echo -n "パスワードを入力してください："
+    while true ; do
+        read password
+        local validator=$(echo "$password" | grep ":")
+        if [ "$validator" != "" ] ; then
+            echo -n "':'を使用することはできません。パスワードを入力してください："
+        else
+            break
+        fi
+    done
 
     echo "Thank you!"
     echo $service_name":"$user_name":"$password >> ./save_location
