@@ -11,7 +11,18 @@ function ask_passwd () {
             break
         fi
     done
-    read -p "ユーザー名を入力してください：" user_name
+    local user_name
+    echo -n "ユーザー名を入力してください："
+    while true ; do
+        read user_name
+        local registration_verification=`grep "$service_name"":""$user_name" ./save_location`
+        if [ "$registration_verification" == "" ] ; then
+            break
+        else
+            echo -n "そのサービス名とユーザー名の組み合わせは既に登録されています。別ユーザー名を入力してください："
+        fi
+    done
+
     read -p "パスワードを入力してください：" password
 
     echo "Thank you!"
@@ -70,7 +81,7 @@ function provide_password () {
 echo パスワードマネージャーへようこそ！
 
 while true ; do
-    echo "次の選択肢から入力してください(Add Password/Get Password/Exit)："
+    echo -n "次の選択肢から入力してください(Add Password/Get Password/Exit)："
     while true ; do
         read choice
         if [ "$choice" == "Add Password" ] ; then
